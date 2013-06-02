@@ -1,0 +1,159 @@
+<!doctype html>
+<!--
+    "Lines 1" by Clif Bratcher 2013
+-->
+<html>
+  <head>
+    <title>Lines 1</title>
+    <script src="js/two.min.js"></script>
+    <style>
+    body {
+      background-color: #222;
+    }
+    </style>
+  </head>
+  <body>
+    <script>
+      var context = new webkitAudioContext();
+      var audioBuffer;
+      var sourceNode = context.createBufferSource();
+      sourceNode.loop = true;
+
+      var request = new XMLHttpRequest();
+      request.responseType = 'arraybuffer';
+      request.open('GET', 'audio/noise.wav', true);
+          request.onload = function () {
+              context.decodeAudioData(
+                request.response,
+                function (buffer) {
+                  sourceNode.buffer = buffer;
+                  sourceNode.noteOn(0);
+                  sourceNode.start(0);
+                },
+                function(err){console.log(err)}
+              );
+          }
+          request.send();
+
+      var two = new Two({
+        fullscreen: true,
+        autostart: true
+      }).appendTo(document.body);
+
+      var midx = two.width / 2;
+      var midy = two.height / 2;
+      var maxScale = 20;
+      var minScale = 1;
+      var scaleStep = 0.1;
+      var maxVolume = 0.01;
+      var maxFreq   = 9000;
+
+      var randFloat = function(max) {
+        return Math.random() * max;
+      };
+
+      var randInt = function(max) {
+        return Math.floor(randFloat(max));
+      };
+
+      var randRangeInt = function(min, max) {
+        return min + randInt(max - min + 1);
+      };
+
+      var randRangeFloat = function(min, max) {
+        return min + randInt(max - min + 1);
+      };
+
+      var randShade = function() {
+          var shade = randInt(256).toString(16);
+          return '#' + shade + shade + shade;
+      };
+
+      var randX = function() {
+          return two.width * (randInt(5) + 1)/6;
+      };
+
+      var randY = function() {
+          return two.height * (randInt(5) + 1)/6;
+      };
+
+      var newLine = function() {
+          var x = randX();
+          var y = randY();
+          var length = randRangeInt(5, 20);
+          var y1 = y - (length/2);
+          var y2 = y + (length/2);
+
+          var line = two.makeLine(x, y1, x, y2);
+
+          line.stroke = randShade();
+          line.clockwise = randInt(2);
+          line.rotationSpeed = .2 + randFloat(1.75);
+          line.scale = randInt(maxScale/2);
+          line.linewidth = 0.01;
+
+          // XXX Need error handling for non-compliant browsers
+          line.filter = context.createBiquadFilter();
+          line.filter.type = 'bandpass';
+          line.filter.frequency.value = 0;
+          line.filter.Q.value = 9;
+          line.pan = context.createPanner();
+          line.volume = context.createGainNode();
+          line.volume.gain.value = 0;
+          line.volume.connect(context.destination);
+          line.filter.connect(line.volume);
+          return line;
+      };
+
+      var lines = [];
+
+      for (var m=0; m < 15 + Math.random() * 50; m++)
+        lines[m] = newLine();
+
+      /* Define our colorful friend */
+      lines[0].translation.set(midx, midy);
+      lines[0].stroke = '#f00';
+      lines[0].rotationSpeed = .1;
+      lines[0].scale = maxScale - 1;
+      lines[0].clockwise = randInt(2);
+
+      for (i in lines) {
+        sourceNode.connect(lines[i].filter);
+        lines[i].index = i;
+      }
+
+      var step = function(obj) {
+        var rotationAmt = 0.05 * obj.rotationSpeed;
+
+        if (obj.clockwise)
+          obj.rotation += rotationAmt;
+        else
+          obj.rotation -= rotationAmt;
+
+        if (obj.grow == true)
+          obj.scale += scaleStep * Math.random();
+        else
+          obj.scale -= scaleStep * Math.random();
+
+        obj.opacity = (obj.scale - minScale)/maxScale;
+        obj.volume.gain.value = maxVolume;
+        obj.filter.frequency.value = maxFreq * obj.opacity;
+
+        if (obj.scale >= maxScale) {
+          obj.grow = false;
+        }
+        else if (obj.scale < minScale) {
+          obj.translation.set(randX(), randY());
+          obj.grow = true;
+          obj.scale = minScale + scaleStep;
+        }
+      };
+
+      two.bind('update', function() {
+        for (var i in lines)
+          step (lines[i]);
+      });
+
+    </script>
+  </body>
+</html>
