@@ -36,6 +36,7 @@
         var size = 10 + Math.random() * 60;
         var square = two.makeRectangle(x, y, size, size);
         square.opacity = .5;
+        square.clockwise = Random.bool();
         return square;
       };
 
@@ -50,7 +51,11 @@
 
       var step = function(obj) {
         obj.linewidth = Math.random();
-        obj.rotation += 0.1 * (Math.random() - .3);
+        var rotationAmt = 0.1 * (Math.random() - .3);
+        if (obj.clockwise)
+          obj.rotation += rotationAmt;
+        else
+          obj.rotation -= rotationAmt;
 
         if (obj.grow == true)
           obj.scale += 0.05 * Math.random();
