@@ -1,0 +1,76 @@
+<!doctype html>
+<!--
+    "Squares" by Clif Bratcher 2013
+-->
+<html>
+  <head>
+    <title>Squares</title>
+    <script src="js/two.min.js"></script>
+    <style>
+    body {
+      background-color: #333;
+    }
+    </style>
+  </head>
+  <body>
+    <script>
+      var two = new Two({
+        fullscreen: true,
+        autostart: true
+      }).appendTo(document.body);
+
+      var midx = two.width / 2;
+      var midy = two.height / 2;
+
+      var newSquare = function() {
+        do {
+          var bogox = Math.floor(Math.random() * 5 + 1);
+          var bogoy = Math.floor(Math.random() * 5 + 1);
+          var x = two.width * (.5 + Math.floor(Math.random() * bogox)) / bogox;
+          var y = two.height * (.5 + Math.floor(Math.random() * bogoy)) / bogoy;
+
+          if (x == midx && y == midy)
+              x = y = 0;
+
+        } while (x == 0 && y == 0);
+
+        var size = 10 + Math.random() * 60;
+
+        return two.makeRectangle(x, y, size, size);
+      };
+
+      var sq = [
+        two.makeRectangle(two.width / 2, two.height / 2, 50 ,50)
+      ];
+
+      for (var m=1; m<5+Math.random()*20; m++)
+        sq[m] = newSquare();
+
+      sq[0].fill = '#f00';
+
+      for (i in sq)
+          sq[i].opacity = .5;
+
+      var step = function(obj) {
+        obj.linewidth = Math.random()*1;
+        obj.rotation += 0.1 * (Math.random() - .3);
+
+        if (obj.grow == true)
+          obj.scale += 0.05 * Math.random();
+        else
+          obj.scale -= 0.05 * Math.random();
+
+        if (obj.scale >= 10)
+          obj.grow = false;
+        else if (obj.scale <= 1)
+          obj.grow = true;
+      };
+
+      two.bind('update', function() {
+        for (var i in sq)
+          step (sq[i]);
+      });
+
+    </script>
+  </body>
+</html>
