@@ -6,6 +6,7 @@
   <head>
     <title>Lines 1</title>
     <script src="js/two.min.js"></script>
+    <script src="js/random.js"></script>
     <style>
     body {
       background-color: #222;
@@ -56,48 +57,32 @@
       var maxVolume = 0.01;
       var maxFreq   = 9000;
 
-      var randFloat = function(max) {
-        return Math.random() * max;
-      };
-
-      var randInt = function(max) {
-        return Math.floor(randFloat(max));
-      };
-
-      var randRangeInt = function(min, max) {
-        return min + randInt(max - min + 1);
-      };
-
-      var randRangeFloat = function(min, max) {
-        return min + randInt(max - min + 1);
-      };
-
       var randShade = function() {
-          var shade = randInt(256).toString(16);
+          var shade = Random.int(256).toString(16);
           return '#' + shade + shade + shade;
       };
 
       var randX = function() {
-          return two.width * (randInt(5) + 1)/6;
+          return two.width * (Random.int(5) + 1)/6;
       };
 
       var randY = function() {
-          return two.height * (randInt(5) + 1)/6;
+          return two.height * (Random.int(5) + 1)/6;
       };
 
       var newLine = function() {
           var x = randX();
           var y = randY();
-          var length = randRangeInt(5, 20);
+          var length = Random.intRange(5, 20);
           var y1 = y - (length/2);
           var y2 = y + (length/2);
 
           var line = two.makeLine(x, y1, x, y2);
 
           line.stroke = randShade();
-          line.clockwise = randInt(2);
-          line.rotationSpeed = .2 + randFloat(1.75);
-          line.scale = randInt(maxScale/2);
+          line.clockwise = Random.bool();
+          line.rotationSpeed = .2 + Random.float(1.75);
+          line.scale = Random.int(maxScale/2);
           line.linewidth = 0.01;
 
           if (typeof webkitAudioContext !== "undefined") {
@@ -123,7 +108,7 @@
       lines[0].stroke = '#f00';
       lines[0].rotationSpeed = .1;
       lines[0].scale = maxScale - 1;
-      lines[0].clockwise = randInt(2);
+      lines[0].clockwise = Random.bool();
 
       for (i in lines) {
         lines[i].index = i;
