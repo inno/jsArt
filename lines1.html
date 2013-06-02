@@ -53,15 +53,15 @@
       };
 
       var randInt = function(max) {
-        return Math.floor(randFloat(max + 1));
+        return Math.floor(randFloat(max));
       };
 
       var randRangeInt = function(min, max) {
-        return min + randInt(max - min);
+        return min + randInt(max - min + 1);
       };
 
       var randRangeFloat = function(min, max) {
-        return min + randInt(max - min);
+        return min + randInt(max - min + 1);
       };
 
       var randShade = function() {
@@ -70,13 +70,11 @@
       };
 
       var randX = function() {
-          var bogox = randInt(5);
-          return two.width * (.5 + randInt(bogox - .5)) / bogox;
+          return two.width * (randInt(5) + 1)/6;
       };
 
       var randY = function() {
-          var bogoy = randInt(5);
-          return two.height* (.5 + randInt(bogoy - .5)) / bogoy;
+          return two.height * (randInt(5) + 1)/6;
       };
 
       var newLine = function() {
