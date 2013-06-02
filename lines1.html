@@ -14,6 +14,27 @@
   </head>
   <body>
     <script>
+      var context = new webkitAudioContext();
+      var audioBuffer;
+      var sourceNode = context.createBufferSource();
+      sourceNode.loop = true;
+
+      var request = new XMLHttpRequest();
+      request.responseType = 'arraybuffer';
+      request.open('GET', 'audio/noise.wav', true);
+          request.onload = function () {
+              context.decodeAudioData(
+                request.response,
+                function (buffer) {
+                  sourceNode.buffer = buffer;
+                  sourceNode.noteOn(0);
+                  sourceNode.start(0);
+                },
+                function(err){console.log(err)}
+              );
+          }
+          request.send();
+
       var two = new Two({
         fullscreen: true,
         autostart: true
@@ -24,6 +45,8 @@
       var maxScale = 20;
       var minScale = 1;
       var scaleStep = 0.1;
+      var maxVolume = 0.01;
+      var maxFreq   = 9000;
 
       var randFloat = function(max) {
         return Math.random() * max;
@@ -40,7 +63,6 @@
       var randRangeFloat = function(min, max) {
         return min + randInt(max - min);
       };
-
 
       var randShade = function() {
           var shade = randInt(256).toString(16);
@@ -68,9 +90,20 @@
 
           line.stroke = randShade();
           line.clockwise = randInt(2);
-          line.rotationSpeed = randFloat(1.75);
-          line.scale = randInt(5);
+          line.rotationSpeed = .2 + randFloat(1.75);
+          line.scale = randInt(maxScale/2);
+          line.linewidth = 0.01;
 
+          // XXX Need error handling for non-compliant browsers
+          line.filter = context.createBiquadFilter();
+          line.filter.type = 'bandpass';
+          line.filter.frequency.value = 0;
+          line.filter.Q.value = 9;
+          line.pan = context.createPanner();
+          line.volume = context.createGainNode();
+          line.volume.gain.value = 0;
+          line.volume.connect(context.destination);
+          line.filter.connect(line.volume);
           return line;
       };
 
@@ -86,8 +119,10 @@
       lines[0].scale = maxScale - 1;
       lines[0].clockwise = randInt(2);
 
-      for (i in lines)
-        lines[i].linewidth = .01;
+      for (i in lines) {
+        sourceNode.connect(lines[i].filter);
+        lines[i].index = i;
+      }
 
       var step = function(obj) {
         var rotationAmt = 0.05 * obj.rotationSpeed;
@@ -102,7 +137,9 @@
         else
           obj.scale -= scaleStep * Math.random();
 
-        obj.opacity = obj.scale/maxScale;
+        obj.opacity = (obj.scale - minScale)/maxScale;
+        obj.volume.gain.value = maxVolume;
+        obj.filter.frequency.value = maxFreq * obj.opacity;
 
         if (obj.scale >= maxScale) {
           obj.grow = false;
