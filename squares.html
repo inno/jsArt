@@ -25,10 +25,8 @@
 
       var newSquare = function() {
         do {
-          var bogox = Random.int(5);
-          var bogoy = Random.int(5);
-          var x = two.width * (.5 + Math.floor(Math.random() * bogox)) / bogox;
-          var y = two.height * (.5 + Math.floor(Math.random() * bogoy)) / bogoy;
+          var x = two.width * (Random.int(5) + 1)/6;
+          var y = two.height * (Random.int(5) + 1)/6;
 
           if (x == midx && y == midy)
               x = y = 0;
@@ -36,21 +34,19 @@
         } while (x == 0 && y == 0);
 
         var size = 10 + Math.random() * 60;
-
-        return two.makeRectangle(x, y, size, size);
+        var square = two.makeRectangle(x, y, size, size);
+        square.opacity = .5;
+        return square;
       };
 
       var sq = [
-        two.makeRectangle(two.width / 2, two.height / 2, 50 ,50)
+        two.makeRectangle(midx, midy, 50 ,50)
       ];
 
       for (var m=1; m < 5 + Random.int(20); m++)
         sq[m] = newSquare();
 
-      sq[0].fill = '#f00';
-
-      for (i in sq)
-          sq[i].opacity = .5;
+      sq[0].fill = '#900';
 
       var step = function(obj) {
         obj.linewidth = Math.random();
