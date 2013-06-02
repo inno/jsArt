@@ -6,6 +6,7 @@
   <head>
     <title>Squares</title>
     <script src="js/two.min.js"></script>
+    <script src="js/random.js"></script>
     <style>
     body {
       background-color: #333;
@@ -24,8 +25,8 @@
 
       var newSquare = function() {
         do {
-          var bogox = Math.floor(Math.random() * 5 + 1);
-          var bogoy = Math.floor(Math.random() * 5 + 1);
+          var bogox = Random.int(5);
+          var bogoy = Random.int(5);
           var x = two.width * (.5 + Math.floor(Math.random() * bogox)) / bogox;
           var y = two.height * (.5 + Math.floor(Math.random() * bogoy)) / bogoy;
 
@@ -43,7 +44,7 @@
         two.makeRectangle(two.width / 2, two.height / 2, 50 ,50)
       ];
 
-      for (var m=1; m<5+Math.random()*20; m++)
+      for (var m=1; m < 5 + Random.int(20); m++)
         sq[m] = newSquare();
 
       sq[0].fill = '#f00';
@@ -52,7 +53,7 @@
           sq[i].opacity = .5;
 
       var step = function(obj) {
-        obj.linewidth = Math.random()*1;
+        obj.linewidth = Math.random();
         obj.rotation += 0.1 * (Math.random() - .3);
 
         if (obj.grow == true)
