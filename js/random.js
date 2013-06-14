@@ -29,4 +29,8 @@ var Random = new function() {
     this.floatRange = function(min, max) {
         return min + Random.float(max - min + 1);
     };
+
+    this.element = function(arr) {
+      return arr[Random.int(arr.length)];
+    };
 };
