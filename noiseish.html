@@ -47,7 +47,7 @@ img {
     var currentImage = 0;
     // Preload the images, because pie
     $(imgs).each(function(){
-      $('<img />').attr('src', this);
+      $('<img />')[0].src = this;
       // Status message
       $('body').html((100 * currentImage/imgs.length).toFixed(2) + '%');
       currentImage++;
