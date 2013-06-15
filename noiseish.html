@@ -1,0 +1,113 @@
+<!doctype html>
+<!--
+    "Noiseish" by Clif Bratcher 2013
+-->
+<html>
+<head>
+<style>
+body {
+  background-color: black;
+  height:100%;
+  text-align: center;
+  color: white;
+  font-family: Arial, Helvetica, sans-serif;
+}
+html {
+  height: 100%;
+}
+img {
+  border: 0px;
+  padding: 0px;
+  outline: none;
+}
+</style>
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.0/jquery.min.js"></script>
+<script src="js/random.js"></script>
+<script>
+  var imgs = [
+    'images/1.gif',
+    'images/2.gif',
+    'images/3.gif',
+    'images/4.gif',
+    'images/5.gif',
+    'images/6.gif',
+   ];
+
+  // There doesn't seem to be a way around restarting cached GIFs...
+  // Re-load images into new caches so we can fudge the GIF restart
+  $(imgs).each(function(){
+    var img = this;
+    $([2,3,4,5]).each(function(){
+        imgs.push(img + '?v=' + this);
+    });
+  });
+
+  function pageLoad() {
+    $(document).attr('title', 'Noiseish - Loading...');
+    var currentImage = 0;
+    // Preload the images, because pie
+    $(imgs).each(function(){
+      $('<img />').attr('src', this);
+      // Status message
+      $('body').html((100 * currentImage/imgs.length).toFixed(2) + '%');
+      currentImage++;
+    });
+
+    // Flush the status
+    $('body').html('');
+
+    // Get on with it!
+    generateGrid();
+  }
+
+  generateGrid = function() {
+    var stepSize = 1 + Random.int(3);
+
+    var maxWidth = $(document).width();
+    var maxHeight = $(document).height();
+
+    var maxHorizontalItems = Math.floor(maxWidth/(stepSize * 100));
+    var maxVerticalItems   = Math.floor(maxHeight/(stepSize * 100));
+
+    // Asthetics
+    if (maxVerticalItems > 2)
+      maxVerticalItems = 2;
+
+    var leftMargin = ((maxWidth - (maxHorizontalItems * stepSize * 100))/2);
+    var topMargin  = ((maxHeight - (maxVerticalItems * stepSize * 100))/2);
+
+    $(document).attr('title', 'Noiseish - ' + maxVerticalItems + ' x ' + maxHorizontalItems);
+
+    // Build the grid
+    for (var x = 0; x < maxHorizontalItems; x++)
+      for (var y = 0; y < maxVerticalItems; y++)
+        generateImg(x, y, stepSize, topMargin, leftMargin).appendTo('body');
+
+  };
+
+  // Randomly select an image at some random point in time
+  var randomizeImage = function(img) {
+    img.attr('src', Random.element(imgs));
+    setTimeout(
+      function(){ randomizeImage(img) },
+      Random.intRange(1000, 10000)
+    );
+  }
+
+  // Create a noisey img at the given coordinates
+  var generateImg = function(x, y, mult, topMargin, leftMargin) {
+    var len = mult * 100;
+    var img = $('<img />');
+    img.css('position', 'absolute');
+    img.css('left', (leftMargin + (mult * 100 * x)) + 'px');
+    img.css('top', (topMargin + (mult * 100 * y)) + 'px');
+    img.css('width', len + 'px');
+    img.css('height', len + 'px');
+    randomizeImage(img);
+    return img;
+  }
+</script>
+</head>
+<body onLoad="pageLoad()">
+</body>
+</html>
