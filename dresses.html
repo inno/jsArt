@@ -35,7 +35,7 @@
             $('#cute').css('padding', padHeight() + 'px 0 0 0');
         });
 
-        $.getJSON('/js/dresses.json',function(data){
+        $.getJSON('js/dresses.json',function(data){
             for (row in data['ROW_ARRAY'])
                 if (data['ROW_ARRAY'][row]['videoExist'])
                     dressClips.push(data['ROW_ARRAY'][row]['scene7VideoURL']);
