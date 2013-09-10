@@ -1,0 +1,65 @@
+<html>
+<head>
+<style>
+</style>
+<script type="text/javascript" src="http://code.jquery.com/jquery.min.js"></script>
+<script type="text/javascript">
+    $(window).load(function(){
+        dressClips=[];
+        vids=[];
+
+        playDress = function(vidEl, firstRun){
+            if (!firstRun && vidEl.ended == false)
+                    return;
+            vidEl.source.src = dressClips[Math.floor(Math.random()*dressClips.length)];
+            vidEl.load();
+        }
+
+        newVid = function(){
+            vid = document.createElement('video');
+            vid.source = document.createElement('source');
+            vid.source.type = 'video/mp4';
+            vid.appendChild(vid.source);
+            vid.autoplay = true;
+            return vid;
+        };
+
+        padHeight = function() {
+            return ($(document).height() / 2) - (598 * (vids[0].width / 444)) / 2;
+        };
+
+        $(window).resize(function() {
+            for (vid in vids)
+                vids[vid].width = ($(document).width() - 20) / vids.length;
+
+            $('#cute').css('padding', padHeight() + 'px 0 0 0');
+        });
+
+        $.getJSON('/js/dresses.json',function(data){
+            for (row in data['ROW_ARRAY'])
+                if (data['ROW_ARRAY'][row]['videoExist'])
+                    dressClips.push(data['ROW_ARRAY'][row]['scene7VideoURL']);
+
+            for (var d = 1; d <= 4; d++)
+                vids.push(newVid());
+
+            for (vid in vids) {
+                document.getElementById('cute').appendChild(vids[vid]);
+                playDress(vids[vid], true);
+                vids[vid].width = ($(document).width() - 20)/vids.length;
+            }
+
+            $('#cute').css('padding', padHeight() + 'px 0 0 0');
+
+            window.setInterval(function(){
+                for (vid in vids)
+                    playDress(vids[vid]);
+            },500);
+        });
+    });
+</script>
+</head>
+<body>
+<div id="cute"></div>
+</body>
+</html>
